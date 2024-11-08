@@ -1,0 +1,33 @@
+[project]
+name = "project"
+version = "0.0.2"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.4",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "coverage>=7.6.4",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.3",
+    "ruff>=0.7.3",
+]
+
+[tool.ruff]
+output-format = "concise"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",  # Pyflakes
+    "UP",  # pyupgrade
+    "B",  # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",  # isort
+    "PL"  # Pylint
+]
+
+[tool.mypy]
+strict = true
