@@ -1,3 +1,6 @@
+from sqlalchemy import Select
+from sqlalchemy.orm import noload
+
 from app.application.schemas import PostCreate, PostUpdate
 from app.domain.models import PostDomain, UserMinimalDomain
 from app.infrastructure.exceptions import EntityNotFoundError
@@ -32,14 +35,24 @@ class PostSQLAlchemyRepository(
 
         return self._to_domain(post)
 
-    def _to_domain(self, model: Post) -> PostDomain:
+    def _to_domain(self, model: Post, /, *, include_author: bool = True) -> PostDomain:
         return self.schema(
             id=model.id,
             title=model.title,
             content=model.content,
             author_id=model.author_id,
             author=UserMinimalDomain.model_validate(model.author)
-            if model.author
+            if include_author and model.author
             else None,
             tags=[tag.name for tag in model.tags],
         )
+
+    def _apply_loading_options(
+        self,
+        statement: Select[tuple[Post]],
+        /,
+        include_author: bool = True,
+    ) -> Select[tuple[Post]]:
+        if not include_author:
+            statement = statement.options(noload(self.model.author))
+        return statement

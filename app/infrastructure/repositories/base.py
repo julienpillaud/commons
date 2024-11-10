@@ -1,7 +1,7 @@
 import uuid
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
-from sqlalchemy import select
+from sqlalchemy import Select, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -35,13 +35,15 @@ class SQLAlchemyRepositoryBase(
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all(self) -> list[Domain_T]:
-        stmt = select(self.model)
+    def get_all(self, **kwargs: Any) -> list[Domain_T]:
+        stmt = self._apply_loading_options(select(self.model), **kwargs)
         results = self.session.scalars(stmt)
         return [self._to_domain(result) for result in results]
 
-    def get_by_id(self, entity_id: uuid.UUID, /) -> Domain_T:
-        if entity := self.session.get(self.model, entity_id):
+    def get_by_id(self, entity_id: uuid.UUID, /, **kwargs: Any) -> Domain_T:
+        stmt = select(self.model).where(self.model.id == entity_id)
+        stmt = self._apply_loading_options(stmt, **kwargs)
+        if entity := self.session.scalar(stmt):
             return self._to_domain(entity)
 
         raise EntityNotFoundError(self.model.__name__, str(entity_id))
@@ -78,5 +80,10 @@ class SQLAlchemyRepositoryBase(
         self.session.delete(entity)
         self.session.commit()
 
-    def _to_domain(self, model: Model_T, /) -> Domain_T:
+    def _to_domain(self, model: Model_T) -> Domain_T:
         return self.schema.model_validate(model)
+
+    def _apply_loading_options(
+        self, statement: Select[tuple[Model_T]]
+    ) -> Select[tuple[Model_T]]:
+        return statement

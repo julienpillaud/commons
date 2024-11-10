@@ -23,6 +23,20 @@ def test_get_all(
     assert len(posts) == count
 
 
+def test_get_all_without_author(
+    post_sqlalchemy_factory: PostSQLAlchemyFactory,
+    post_repository: PostSQLAlchemyRepository,
+) -> None:
+    count = 3
+    post_sqlalchemy_factory.create_many(count)
+
+    posts = post_repository.get_all(include_author=False)
+
+    assert len(posts) == count
+    post = posts[0]
+    assert post.author is None
+
+
 def test_get_by_id(
     post_sqlalchemy_factory: PostSQLAlchemyFactory,
     post_repository: PostSQLAlchemyRepository,
@@ -45,6 +59,23 @@ def test_get_by_id(
 
     assert post.tags
     assert sorted(post.tags) == sorted(created_post.tags)
+
+
+def test_get_by_id_without_author(
+    post_sqlalchemy_factory: PostSQLAlchemyFactory,
+    post_repository: PostSQLAlchemyRepository,
+) -> None:
+    created_post = post_sqlalchemy_factory.create_one()
+
+    post = post_repository.get_by_id(created_post.id, include_author=False)
+
+    assert post
+    assert post.id == created_post.id
+    assert post.title == created_post.title
+    assert post.content == created_post.content
+    assert post.author_id == created_post.author_id
+
+    assert post.author is None
 
 
 def test_get_by_id_not_found(post_repository: PostSQLAlchemyRepository) -> None:

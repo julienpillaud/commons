@@ -1,5 +1,5 @@
 import uuid
-from typing import Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ class AbstractRepository(Protocol[Domain_T, Create_T_contra, Update_T_contra]):
 
     def get_all(self) -> list[Domain_T]: ...
 
-    def get_by_id(self, entity_id: uuid.UUID) -> Domain_T: ...
+    def get_by_id(self, entity_id: uuid.UUID, /, **kwargs: Any) -> Domain_T: ...
 
     def create(self, data: Create_T_contra) -> Domain_T: ...
 
