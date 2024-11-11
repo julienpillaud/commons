@@ -1,7 +1,7 @@
 from sqlalchemy import Select
 from sqlalchemy.orm import noload
 
-from app.application.schemas import PostCreate, PostUpdate
+from app.application.dtos import PostCreate, PostUpdate
 from app.domain.models import PostDomain, UserMinimalDomain
 from app.infrastructure.exceptions import EntityNotFoundError
 from app.infrastructure.models import Post, Tag, User

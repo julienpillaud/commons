@@ -3,7 +3,7 @@ import uuid
 import pytest
 from sqlalchemy.orm import Session
 
-from app.application.schemas import PostCreate, PostUpdate
+from app.application.dtos import PostCreate, PostUpdate
 from app.domain.models import PaginationParams
 from app.factories.post import PostSQLAlchemyFactory
 from app.factories.user import UserSQLAlchemyFactory

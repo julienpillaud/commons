@@ -4,7 +4,7 @@ from typing import Any, Generic
 from app.domain.models import (
     Create_T_contra,
     Domain_T,
-    PaginatedItems,
+    DomainPagination,
     PaginationParams,
     Update_T_contra,
 )
@@ -21,7 +21,7 @@ class AbstractService(Generic[Domain_T, Create_T_contra, Update_T_contra]):
         self,
         pagination: PaginationParams | None = None,
         **kwargs: Any,
-    ) -> PaginatedItems[Domain_T]:
+    ) -> DomainPagination[Domain_T]:
         return self.repository.get_all(pagination=pagination, **kwargs)
 
     def get_by_id(self, entity_id: uuid.UUID, /, **kwargs: Any) -> Domain_T:

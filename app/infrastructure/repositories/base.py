@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.domain.models import (
     Create_T_contra,
     Domain_T,
-    PaginatedItems,
+    DomainPagination,
     PaginationParams,
     Update_T_contra,
 )
@@ -39,7 +39,7 @@ class SQLAlchemyRepositoryBase(
 
     def get_all(
         self, pagination: PaginationParams | None = None, **kwargs: Any
-    ) -> PaginatedItems[Domain_T]:
+    ) -> DomainPagination[Domain_T]:
         count_stmt = select(func.count()).select_from(self.model)
         total = self.session.scalar(count_stmt) or 0
 
@@ -50,7 +50,7 @@ class SQLAlchemyRepositoryBase(
         results = self.session.scalars(stmt)
         items = [self._to_domain(result) for result in results]
 
-        return PaginatedItems(total=total, limit=len(items), items=items)
+        return DomainPagination(total=total, limit=len(items), items=items)
 
     def get_by_id(self, entity_id: uuid.UUID, /, **kwargs: Any) -> Domain_T:
         stmt = select(self.model).where(self.model.id == entity_id)

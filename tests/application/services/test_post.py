@@ -1,6 +1,6 @@
 import pytest
 
-from app.application.schemas import PostCreate
+from app.application.dtos import PostCreate
 from app.application.services.post import PostService
 from app.domain.constants import PostConstants
 from app.domain.exceptions import TooManyTagsError

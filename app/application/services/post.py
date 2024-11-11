@@ -1,4 +1,4 @@
-from app.application.schemas import PostCreate, PostUpdate
+from app.application.dtos import PostCreate, PostUpdate
 from app.domain.constants import PostConstants
 from app.domain.exceptions import TooManyTagsError
 from app.domain.models import PostDomain

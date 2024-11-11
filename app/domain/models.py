@@ -10,7 +10,7 @@ import datetime
 import uuid
 from typing import Generic, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, PositiveInt
 
 
 class DomainModel(BaseModel):
@@ -19,6 +19,7 @@ class DomainModel(BaseModel):
     id: uuid.UUID
 
 
+T = TypeVar("T")
 Domain_T = TypeVar("Domain_T", bound=DomainModel)
 Create_T_contra = TypeVar("Create_T_contra", bound=BaseModel, contravariant=True)
 Update_T_contra = TypeVar("Update_T_contra", bound=BaseModel, contravariant=True)
@@ -52,7 +53,10 @@ class PaginationParams(BaseModel):
     limit: PositiveInt = 100
 
 
-class PaginatedItems(BaseModel, Generic[Domain_T]):
-    total: PositiveInt
-    limit: PositiveInt
-    items: list[Domain_T]
+class PaginationBase(BaseModel, Generic[T]):
+    total: NonNegativeInt
+    limit: NonNegativeInt
+    items: list[T]
+
+
+class DomainPagination(PaginationBase[Domain_T]): ...

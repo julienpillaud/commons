@@ -1,7 +1,7 @@
 from collections.abc import Iterator
 
 import pytest
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session
 
 from app.infrastructure.models import Base
@@ -9,7 +9,9 @@ from app.infrastructure.models import Base
 
 @pytest.fixture
 def engine() -> Engine:
-    engine = create_engine("sqlite://")
+    engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
     Base.metadata.create_all(engine)
     return engine
 

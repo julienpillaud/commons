@@ -1,6 +1,6 @@
 import datetime
 
-from app.application.schemas import UserCreate, UserUpdate
+from app.application.dtos import UserCreate, UserUpdate
 from app.application.services.user import UserService
 from app.factories.user import UserSQLAlchemyFactory
 

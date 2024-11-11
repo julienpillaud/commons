@@ -4,7 +4,7 @@ import uuid
 import pytest
 from sqlalchemy.orm import Session
 
-from app.application.schemas import UserCreate, UserUpdate
+from app.application.dtos import UserCreate, UserUpdate
 from app.factories.user import UserSQLAlchemyFactory
 from app.infrastructure.exceptions import (
     EntityAlreadyExistsError,

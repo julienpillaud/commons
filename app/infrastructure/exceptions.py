@@ -19,4 +19,4 @@ class DatabaseError(RepositoryError):
     def __init__(self, operation: str, details: str):
         self.operation = operation
         self.details = details
-        super().__init__(f"Database {operation} failed: {details}")
+        super().__init__(f"Database {operation} failed: {details}.")
