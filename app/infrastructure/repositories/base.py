@@ -5,14 +5,14 @@ from sqlalchemy import Select, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.application.schemas import PaginationParams
-from app.domain.repositories import (
-    AbstractRepository,
+from app.domain.models import (
     Create_T_contra,
     Domain_T,
     PaginatedItems,
+    PaginationParams,
     Update_T_contra,
 )
+from app.domain.repository import AbstractRepository
 from app.infrastructure.exceptions import (
     DatabaseError,
     EntityAlreadyExistsError,

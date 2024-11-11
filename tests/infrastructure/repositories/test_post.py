@@ -3,7 +3,8 @@ import uuid
 import pytest
 from sqlalchemy.orm import Session
 
-from app.application.schemas import PaginationParams, PostCreate, PostUpdate
+from app.application.schemas import PostCreate, PostUpdate
+from app.domain.models import PaginationParams
 from app.factories.post import PostSQLAlchemyFactory
 from app.factories.user import UserSQLAlchemyFactory
 from app.infrastructure.exceptions import EntityNotFoundError
@@ -91,7 +92,6 @@ def test_get_by_id(
 
     post = post_repository.get_by_id(created_post.id)
 
-    assert post
     assert post.id == created_post.id
     assert post.title == created_post.title
     assert post.content == created_post.content
@@ -104,7 +104,7 @@ def test_get_by_id(
     assert post.author.email == created_post.author.email
 
     assert post.tags
-    assert sorted(post.tags) == sorted(created_post.tags)
+    assert set(post.tags) == set(created_post.tags)
 
 
 def test_get_by_id_without_author(
@@ -115,7 +115,6 @@ def test_get_by_id_without_author(
 
     post = post_repository.get_by_id(created_post.id, include_author=False)
 
-    assert post
     assert post.id == created_post.id
     assert post.title == created_post.title
     assert post.content == created_post.content
@@ -143,7 +142,7 @@ def test_create_post(
         title="Test Post",
         content="Test Content",
         author_id=created_user.id,
-        tags=["python"],
+        tags=["python", "fastapi"],
     )
 
     post = post_repository.create(post_create)
@@ -161,29 +160,7 @@ def test_create_post(
     assert post_db.author.email == created_user.email
 
     assert post_db.tags
-    assert sorted([tag.name for tag in post_db.tags]) == sorted(post_create.tags)
-
-
-def test_post_create_duplicates_tags(
-    session: Session,
-    user_sqlalchemy_factory: UserSQLAlchemyFactory,
-    post_repository: PostSQLAlchemyRepository,
-) -> None:
-    created_user = user_sqlalchemy_factory.create_one()
-    post_create = PostCreate(
-        title="Test Post",
-        content="Test Content",
-        author_id=created_user.id,
-        tags=["python", "python", "fastapi"],
-    )
-
-    post = post_repository.create(post_create)
-    post_db = session.get(Post, post.id)
-
-    assert post_db
-    assert sorted([tag.name for tag in post_db.tags]) == sorted(
-        list(set(post_create.tags))
-    )
+    assert {tag.name for tag in post_db.tags} == set(post_create.tags)
 
 
 def test_create_post_with_non_existent_user(
@@ -227,7 +204,7 @@ def test_update_post(
     assert post_db.author.email == created_post.author.email
 
     assert post_db.tags
-    assert sorted([tag.name for tag in post_db.tags]) == sorted(created_post.tags)
+    assert {tag.name for tag in post_db.tags} == set(created_post.tags)
 
 
 def test_update_post_not_found(post_repository: PostSQLAlchemyRepository) -> None:

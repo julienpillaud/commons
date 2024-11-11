@@ -1,12 +1,7 @@
 import datetime
 import uuid
 
-from pydantic import BaseModel, Field, PositiveInt, field_validator
-
-
-class PaginationParams(BaseModel):
-    page: PositiveInt = 1
-    limit: PositiveInt = 100
+from pydantic import BaseModel, Field
 
 
 class UserCreate(BaseModel):
@@ -29,11 +24,6 @@ class PostCreate(BaseModel):
     content: str
     author_id: uuid.UUID
     tags: list[str] = Field(default_factory=list)
-
-    @field_validator("tags")
-    @classmethod
-    def deduplicate_tags(cls, value: list[str]) -> list[str]:
-        return list(set(value))
 
 
 class PostUpdate(BaseModel):

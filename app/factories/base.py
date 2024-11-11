@@ -4,7 +4,7 @@ from typing import Any, Generic
 from faker import Faker
 from sqlalchemy.orm import Session
 
-from app.domain.repositories import Domain_T
+from app.domain.models import Domain_T
 from app.infrastructure.repositories.base import Model_T
 
 faker = Faker()

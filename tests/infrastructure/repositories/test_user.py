@@ -36,7 +36,6 @@ def test_get_by_id(
 
     user = user_repository.get_by_id(created_user.id)
 
-    assert user
     assert user.id == created_user.id
     assert user.username == created_user.username
     assert user.email == created_user.email

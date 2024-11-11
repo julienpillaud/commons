@@ -1,20 +1,13 @@
 import uuid
-from typing import Any, Generic, Protocol, TypeVar
+from typing import Any, Protocol
 
-from pydantic import BaseModel, PositiveInt
-
-from app.application.schemas import PaginationParams
-from app.domain.models import DomainModel
-
-Domain_T = TypeVar("Domain_T", bound=DomainModel)
-Create_T_contra = TypeVar("Create_T_contra", bound=BaseModel, contravariant=True)
-Update_T_contra = TypeVar("Update_T_contra", bound=BaseModel, contravariant=True)
-
-
-class PaginatedItems(BaseModel, Generic[Domain_T]):
-    total: PositiveInt
-    limit: PositiveInt
-    items: list[Domain_T]
+from app.domain.models import (
+    Create_T_contra,
+    Domain_T,
+    PaginatedItems,
+    PaginationParams,
+    Update_T_contra,
+)
 
 
 class AbstractRepository(Protocol[Domain_T, Create_T_contra, Update_T_contra]):
@@ -23,6 +16,7 @@ class AbstractRepository(Protocol[Domain_T, Create_T_contra, Update_T_contra]):
     def get_all(
         self,
         pagination: PaginationParams | None = None,
+        **kwargs: Any,
     ) -> PaginatedItems[Domain_T]: ...
 
     def get_by_id(self, entity_id: uuid.UUID, /, **kwargs: Any) -> Domain_T: ...
