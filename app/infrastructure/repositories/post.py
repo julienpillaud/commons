@@ -49,10 +49,9 @@ class PostSQLAlchemyRepository(
 
     def _apply_loading_options(
         self,
-        statement: Select[tuple[Post]],
-        /,
+        stmt: Select[tuple[Post]],
         include_author: bool = True,
     ) -> Select[tuple[Post]]:
         if not include_author:
-            statement = statement.options(noload(self.model.author))
-        return statement
+            stmt = stmt.options(noload(self.model.author))
+        return stmt

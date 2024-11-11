@@ -1,14 +1,16 @@
 import uuid
 from typing import Any, Generic, TypeVar
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.application.schemas import PaginationParams
 from app.domain.repositories import (
     AbstractRepository,
     Create_T_contra,
     Domain_T,
+    PaginatedItems,
     Update_T_contra,
 )
 from app.infrastructure.exceptions import (
@@ -35,14 +37,24 @@ class SQLAlchemyRepositoryBase(
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all(self, **kwargs: Any) -> list[Domain_T]:
-        stmt = self._apply_loading_options(select(self.model), **kwargs)
+    def get_all(
+        self, pagination: PaginationParams | None = None, **kwargs: Any
+    ) -> PaginatedItems[Domain_T]:
+        count_stmt = select(func.count()).select_from(self.model)
+        total = self.session.scalar(count_stmt) or 0
+
+        stmt = select(self.model)
+        stmt = self._apply_pagination(stmt=stmt, pagination=pagination)
+        stmt = self._apply_loading_options(stmt=stmt, **kwargs)
+
         results = self.session.scalars(stmt)
-        return [self._to_domain(result) for result in results]
+        items = [self._to_domain(result) for result in results]
+
+        return PaginatedItems(total=total, limit=len(items), items=items)
 
     def get_by_id(self, entity_id: uuid.UUID, /, **kwargs: Any) -> Domain_T:
         stmt = select(self.model).where(self.model.id == entity_id)
-        stmt = self._apply_loading_options(stmt, **kwargs)
+        stmt = self._apply_loading_options(stmt=stmt, **kwargs)
         if entity := self.session.scalar(stmt):
             return self._to_domain(entity)
 
@@ -80,10 +92,21 @@ class SQLAlchemyRepositoryBase(
         self.session.delete(entity)
         self.session.commit()
 
-    def _to_domain(self, model: Model_T) -> Domain_T:
+    def _to_domain(self, model: Model_T, /) -> Domain_T:
         return self.schema.model_validate(model)
 
     def _apply_loading_options(
-        self, statement: Select[tuple[Model_T]]
+        self, stmt: Select[tuple[Model_T]]
     ) -> Select[tuple[Model_T]]:
-        return statement
+        return stmt
+
+    @staticmethod
+    def _apply_pagination(
+        stmt: Select[tuple[Model_T]],
+        pagination: PaginationParams | None,
+    ) -> Select[tuple[Model_T]]:
+        if pagination is None:
+            return stmt
+
+        offset = (pagination.page - 1) * pagination.limit
+        return stmt.offset(offset).limit(pagination.limit)

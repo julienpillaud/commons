@@ -21,9 +21,11 @@ def test_get_all(
     count = 3
     user_sqlalchemy_factory.create_many(count)
 
-    users = user_repository.get_all()
+    results = user_repository.get_all()
 
-    assert len(users) == count
+    assert results.total == count
+    assert results.limit == count
+    assert len(results.items) == count
 
 
 def test_get_by_id(

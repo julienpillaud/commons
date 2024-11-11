@@ -3,7 +3,7 @@ import uuid
 import pytest
 from sqlalchemy.orm import Session
 
-from app.application.schemas import PostCreate, PostUpdate
+from app.application.schemas import PaginationParams, PostCreate, PostUpdate
 from app.factories.post import PostSQLAlchemyFactory
 from app.factories.user import UserSQLAlchemyFactory
 from app.infrastructure.exceptions import EntityNotFoundError
@@ -18,9 +18,34 @@ def test_get_all(
     count = 3
     post_sqlalchemy_factory.create_many(count)
 
-    posts = post_repository.get_all()
+    results = post_repository.get_all()
 
-    assert len(posts) == count
+    assert results.total == count
+    assert results.limit == count
+    assert len(results.items) == count
+
+
+def test_get_all_with_pagination(
+    post_sqlalchemy_factory: PostSQLAlchemyFactory,
+    post_repository: PostSQLAlchemyRepository,
+) -> None:
+    count = 30
+    page = 2
+    limit = 10
+    for i in range(count):
+        post_sqlalchemy_factory.create_one(title=f"Post {i + 1}")
+
+    results = post_repository.get_all(
+        pagination=PaginationParams(page=page, limit=limit)
+    )
+
+    assert results.total == count
+    assert results.limit == limit
+    assert len(results.items) == limit
+
+    expected_titles = [f"Post {i}" for i in range(11, 21)]
+    actual_titles = [post.title for post in results.items]
+    assert actual_titles == expected_titles
 
 
 def test_get_all_without_author(
@@ -30,10 +55,31 @@ def test_get_all_without_author(
     count = 3
     post_sqlalchemy_factory.create_many(count)
 
-    posts = post_repository.get_all(include_author=False)
+    results = post_repository.get_all(include_author=False)
 
-    assert len(posts) == count
-    post = posts[0]
+    assert results.total == count
+    assert results.limit == count
+    assert len(results.items) == count
+    post = results.items[0]
+    assert post.author is None
+
+
+def test_get_all_with_pagination_without_author(
+    post_sqlalchemy_factory: PostSQLAlchemyFactory,
+    post_repository: PostSQLAlchemyRepository,
+) -> None:
+    count = 30
+    limit = 10
+    post_sqlalchemy_factory.create_many(count)
+
+    results = post_repository.get_all(
+        pagination=PaginationParams(limit=limit), include_author=False
+    )
+
+    assert results.total == count
+    assert results.limit == limit
+    assert len(results.items) == limit
+    post = results.items[0]
     assert post.author is None
 
 

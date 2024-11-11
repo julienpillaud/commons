@@ -1,7 +1,12 @@
 import datetime
 import uuid
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, PositiveInt, field_validator
+
+
+class PaginationParams(BaseModel):
+    page: PositiveInt = 1
+    limit: PositiveInt = 100
 
 
 class UserCreate(BaseModel):
