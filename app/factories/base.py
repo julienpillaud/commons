@@ -17,12 +17,11 @@ class BaseDataFactory(ABC, Generic[Domain_T]):
         self.data: dict[str, Domain_T] = {}
 
     @abstractmethod
-    def _fake_data(self) -> dict[str, Any]: ...
+    def _fake_data(self, **kwargs: Any) -> dict[str, Any]: ...
 
     def create_one(self, **kwargs: Any) -> Domain_T:
-        fake_data = self._fake_data()
-        fake_data.update(kwargs)
-        entity = self.schema.model_validate(fake_data)
+        entity_data = self._fake_data(**kwargs)
+        entity = self.schema.model_validate(entity_data)
         self.data[str(entity.id)] = entity
         return entity
 

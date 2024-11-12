@@ -10,7 +10,7 @@ from app.infrastructure.models import User
 class UserDataFactory(BaseDataFactory[UserDomain]):
     schema = UserDomain
 
-    def _fake_data(self) -> dict[str, Any]:
+    def _fake_data(self, **kwargs: Any) -> dict[str, Any]:
         return {
             "id": uuid.uuid4(),
             "username": faker.unique.user_name(),
@@ -25,7 +25,7 @@ class UserDataFactory(BaseDataFactory[UserDomain]):
             ),
             "is_active": faker.boolean(),
             "birth_date": faker.date_of_birth(),
-        }
+        } | kwargs
 
 
 class UserSQLAlchemyFactory(BaseSQLAlchemyFactory[UserDomain, User]):

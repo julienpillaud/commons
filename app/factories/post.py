@@ -16,7 +16,7 @@ class PostDataFactory(BaseDataFactory[PostDomain]):
         super().__init__()
         self.user_data_factory = user_data_factory
 
-    def _fake_data(self) -> dict[str, Any]:
+    def _fake_data(self, **kwargs: Any) -> dict[str, Any]:
         author = self.user_data_factory.create_one()
         minimal_author = UserMinimalDomain(
             id=author.id, username=author.username, email=author.email
@@ -30,7 +30,7 @@ class PostDataFactory(BaseDataFactory[PostDomain]):
             "author_id": author.id,
             "author": minimal_author,
             "tags": tags,
-        }
+        } | kwargs
 
 
 class PostSQLAlchemyFactory(BaseSQLAlchemyFactory[PostDomain, Post]):
