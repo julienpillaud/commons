@@ -8,9 +8,11 @@ to these domain models before returning them to the application layer.
 
 import datetime
 import uuid
-from typing import Generic, TypeVar
+from typing import Annotated, Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, PositiveInt
+
+from app.domain.constants import UserConstants
 
 
 class DomainModel(BaseModel):
@@ -28,8 +30,10 @@ Update_T_contra = TypeVar("Update_T_contra", bound=BaseModel, contravariant=True
 class UserDomain(DomainModel):
     username: str
     email: str
-    level: int
-    height: float
+    level: Annotated[int, Field(ge=UserConstants.MIN_LEVEL, le=UserConstants.MAX_LEVEL)]
+    height: Annotated[
+        float, Field(ge=UserConstants.MIN_HEIGHT, le=UserConstants.MAX_HEIGHT)
+    ]
     is_active: bool
     birth_date: datetime.date
     posts: list["PostDomain"] = Field(default_factory=list)

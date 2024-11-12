@@ -26,8 +26,8 @@ class BaseDataFactory(ABC, Generic[Domain_T]):
         self.data[str(entity.id)] = entity
         return entity
 
-    def create_many(self, count: int, **kwargs: Any) -> list[Domain_T]:
-        return [self.create_one(**kwargs) for _ in range(count)]
+    def create_many(self, count: int, /) -> list[Domain_T]:
+        return [self.create_one() for _ in range(count)]
 
 
 class BaseSQLAlchemyFactory(Generic[Domain_T, Model_T]):
@@ -47,8 +47,8 @@ class BaseSQLAlchemyFactory(Generic[Domain_T, Model_T]):
         self.session.commit()
         return entity
 
-    def create_many(self, count: int = 2, /, **kwargs: Any) -> list[Domain_T]:
-        return [self.create_one(**kwargs) for _ in range(count)]
+    def create_many(self, count: int, /) -> list[Domain_T]:
+        return [self.create_one() for _ in range(count)]
 
     def _to_model(self, entity: Domain_T) -> Model_T:
         return self.model(**entity.model_dump())
