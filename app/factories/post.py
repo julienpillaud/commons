@@ -16,8 +16,14 @@ class PostDataFactory(BaseDataFactory[PostDomain]):
         super().__init__()
         self.user_data_factory = user_data_factory
 
-    def _fake_data(self, **kwargs: Any) -> dict[str, Any]:
-        author = self.user_data_factory.create_one()
+    def _fake_data(
+        self, author_id: uuid.UUID | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
+        if author_id and str(author_id) in self.user_data_factory.data:
+            author = self.user_data_factory.data[str(author_id)]
+        else:
+            author = self.user_data_factory.create_one()
+
         minimal_author = UserMinimalDomain(
             id=author.id, username=author.username, email=author.email
         )
